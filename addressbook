@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# Перевірка, чи існує файл адресної книги
+address_book="addressbook.txt"
+if [ ! -e "$address_book" ]; then
+    touch "$address_book"
+fi
+
+# Функція додавання запису
+add_entry() {
+    name="$1"
+    email="$2"
+    echo "$name $email" >> "$address_book"
+}
+
+# Функція видалення запису
+remove_entry() {
+    name="$1"
+    sed -i "/^$name /d" "$address_book"
+}
+
+# Функція видалення всіх записів
+clear_entries() {
+    > "$address_book"
+}
+
+# Функція пошуку та виведення записів за іменем
+lookup_entries() {
+    name="$1"
+    grep "^$name " "$address_book" | cut -d' ' -f3
+}
+
+# Визначення команди та обробка
+case "$1" in
+"new")
+    name="$2"
+    email="$3"
+    add_entry "$name" "$email"
+    ;;
+"list")
+    if [ -s "$address_book" ]; then
+        cat "$address_book"
+    else
+        echo "addressbook is empty"
+    fi
+    ;;
+"remove")
+    name="$2"
+    remove_entry "$name"
+    ;;
+"clear")
+    clear_entries
+    ;;
+"lookup")
+    name="$2"
+    lookup_entries "$name"
+    ;;
+*)
+    echo "Неправильна команда. Використовуйте 'new', 'list', 'remove', 'clear', або 'lookup'."
+    ;;
+esac
